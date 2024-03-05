@@ -1,0 +1,47 @@
+library(ggplot2)
+
+custom_histogram <- function(data, variable,
+                             x_label = NULL,
+                             y_label = NULL,
+                             line_color = "#000000",
+                             fill_color = p_skezi[1],
+                             palette = p_skezi,
+                             line_type = "solid",
+                             density_plot = FALSE,
+                             mean_indicator = FALSE,
+                             title_label = NULL) {
+  
+  ggplot(data, aes_string(x = variable)) +
+    
+    geom_histogram(color = line_color, fill = fill_color,
+                   linetype = line_type, alpha = 0.5, position = "stack", stat = "count") +
+    xlab(x_label) +
+    ylab(y_label) +
+    ggtitle(paste(title_label, " - Count:", length(na.omit(data[, variable])))) +
+    
+    # Add density plot if specified
+    if (density_plot) {
+      geom_density(color = palette[1])
+    } +
+    
+    # Add mean indicator if specified
+    if (mean_indicator) {
+      geom_vline(aes(xintercept = mean(data[[variable]], na.rm = TRUE)),
+                 linetype = "dashed", color = palette[2], size = 1)
+    } +
+    
+    theme(axis.text = element_text(size = 8, face = "bold", color = palette[1]),
+          legend.key.size = unit(1, "cm"),
+          panel.background = element_rect(fill = "transparent"),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major = element_line(color = "black", size = 0.2, linetype = "dashed"),
+          panel.grid.minor = element_line(color = "black", size = 0.2, linetype = "dashed"),
+          legend.background = element_blank(),
+          legend.box.background = element_blank())
+}
+
+
+
+# Example usage
+data <- data.frame(variable = rnorm(100))
+custom_histogram(data, "variable", "X-axis Label", "Y-axis Label", "#333333", "#66CC66", c("#66CC66", "#FF9933"), "dashed", TRUE, TRUE, "Your Plot Title")

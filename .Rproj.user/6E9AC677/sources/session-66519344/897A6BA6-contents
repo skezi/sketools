@@ -1,0 +1,36 @@
+library(psych)
+
+
+numerical_table_summary <- function(df, vars, labels = NULL, ranges = FALSE) {
+  tab_df <- df[, vars]
+  
+  if (!is.null(labels) && length(labels) == length(vars)) {
+    combined <- list(labels = labels, vars = vars)
+    
+    for (i in seq_along(combined$labels)) {
+      label <- combined$labels[i]
+      var <- combined$vars[i]
+      
+      tab_df[[label]] <- tab_df[[var]]
+      tab_df <- tab_df[, setdiff(colnames(tab_df), vars)]
+    }
+    
+  }
+  my_tableau <- describe(tab_df, ranges = FALSE, quant = c(0.25, 0.50, 0.75))
+  table_df <- as.data.frame(my_tableau)
+  
+  table_df <- table_df[, setdiff(colnames(table_df), c("vars", "skew", "kurtosis", "se"))]
+  
+  tmp <- rep(nrow(df), times = nrow(table_df))
+  
+  table_df$Effectif <- table_df$n
+  table_df$Manquant <- tmp - table_df$Effectif
+  table_df$Moyenne <- table_df$mean
+  table_df$EcartType <- table_df$sd
+  table_df$Q1 <- table_df$Q0.25
+  table_df$Médiane <- table_df$Q0.5
+  table_df$Q3 <- table_df$Q0.75
+  
+  table_df <- table_df[, setdiff(colnames(table_df), c("n", "mean", "sd", "Q0.25", "Q0.5", "Q0.75"))]
+  return(table_df)
+}

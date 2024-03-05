@@ -1,0 +1,160 @@
+library(broom)
+library(dplyr)
+library(ggplot2)
+library(forcats)
+library(stringr)
+
+forest_plot_maker <- function(mod, var_1 = tab$term[1], var_2 = tab$term[2],
+  var_3 = tab$term[3], var_4 = tab$term[4],
+  var_5 = tab$term[5], var_6 = tab$term[6],
+  shape = 15,
+  point_size = 3,
+  left_annotation = "Protective factor",
+  right_annotation = "Risk factor",
+  axis_size = 12,
+  y_labels = NULL
+) {
+
+
+  #Obtains results as tibble with 'tidy'
+  tab <- tidy(mod) %>%
+    #Add column log.estimate
+    mutate(log.estimate = log(abs(estimate))) %>%
+    #Add columns conf.low & conf.high
+    mutate(confint_tidy(mod)) %>%
+    #Add column log.conf.low
+    mutate(log.conf.low = log(abs(conf.low))) %>%
+    #Add column log.conf.high
+    mutate(log.conf.high = log(abs(conf.high))) %>%
+    #Reorder descending order
+    arrange(desc(estimate)) %>%
+    #Remove Intercept line
+    filter(term != "(Intercept)")
+
+  #Wrangle results into pre-plotting table form
+  tab_plot <- tab %>%
+    #Round estimates and 95% CIs to 2 decimal places for journal specifications
+    mutate(across(c(estimate, conf.low, conf.high),
+             str_pad(round(.x, 2),
+               width = 4,
+               pad = "0",
+               side = "right"
+             )
+           ),
+           #New column : estimate_lab add an "-"
+           #between HR estimate confidence intervals
+           estimate_lab = paste0(estimate,
+                                 " (", conf.low, " - ", conf.high, ")")) %>%
+    #Round p-values to two decimal places, except in cases where p < .001
+    mutate(p.value = case_when(
+      p.value < .001 ~ "<0.001",
+      round(p.value, 2) == .05 ~ as.character(round(p.value, 3)),
+      p.value < .01 ~ str_pad( # if less than .01, go one more decimal place
+        as.character(round(p.value, 3)),
+        width = 4,
+        pad = "0",
+        side = "right"
+      ),
+      TRUE ~ str_pad( #Otherwise just round to 2 decimal places
+        #and pad string so that .2 reads as 0.20
+        as.character(round(p.value, 2)),
+        width = 4,
+        pad = "0",
+        side = "right"
+      )
+    )) %>%
+    #Add a row of data that are actually column names
+    #which will be shown on the plot in the next step
+    bind_rows(
+      data.frame(
+        term = "Model",
+        estimate_lab = "Hazard Ratio (95% CI)",
+        conf.low = "",
+        conf.high = "",
+        p.value = "p-value"
+      )
+    ) %>%
+    mutate(model = fct_rev(fct_relevel(term, "Model")))
+
+
+  #First plot : geom_point(HR) & geom_linerange(95% CI) & geom_vline = 0
+  p_mid <- tab %>%
+    #fct_reorder to arrange in descending order Plot mod and reverse order
+    ggplot(aes(y = fct_reorder(term, estimate))) +
+    theme_classic() +
+    #Point = log(HR) from Cox regressions
+    geom_point(aes(x = estimate), shape = shape, size = point_size) +
+    #Lines = IC95%
+    geom_linerange(aes(xmin = conf.low, xmax = conf.high)) +
+    #Add a line at log(HR)=0
+    geom_vline(xintercept = 0, linetype = "dashed") +
+    #Labs' title
+    labs(x = "Log Hazard Ratio", y = "") +
+    #Rename model's variables
+    # scale_y_discrete(labels = c(tab$term[1] = var_1, tab$term[2] = var_2,
+    #                             tab$term[3] = var_3,tab$term[4] = var_4,
+    #                             tab$term[5] = var_5, tab$term[6] = var_6)) +
+    coord_cartesian(ylim = c(1, nrow(tab) + 2), xlim = c(min(tab$conf.low) - 1,
+                                                         #Zoom out to leave
+                                                         #space on top
+                                                         max(tab$conf.high)
+                                                         + 1)) +
+    #Add legend on the top left
+    annotate("text", x = -.7, y = nrow(tab) + 1, label = left_annotation) +
+    #Add legend on the top right
+    annotate("text", x = .5, y = nrow(tab) + 1, label = right_annotation) +
+    #Theme
+    theme(axis.text = element_text(size = axis_size, face = "bold",
+                                   colour = "black"),
+          legend.key.size = unit(1, "cm"),
+          panel.background = element_rect(fill = "transparent"),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.background = element_rect(fill = "transparent"),
+          legend.box.background = element_rect(fill = "transparent"))
+
+
+  #Second plot : geom_text(model's label) & geom_text(HR and 95% CI)
+  p_right <- tab_plot  %>%
+    ggplot(aes(y = fct_reorder(model, estimate))) +
+    #Add HR and 95% CI annotations
+    geom_text(aes(x = 1, label = estimate_lab),
+              hjust = 0,
+              fontface = ifelse(tab_plot$estimate_lab ==
+                                  "Hazard Ratio (95% CI)", "bold", "plain")) +
+    #Only the title in bold
+    #Add p-value annotations
+    geom_text(aes(x = 0, y = fct_reorder(model, estimate), label = p.value),
+              hjust = 0,
+              fontface = ifelse(tab_plot$p.value ==
+                                  "p-value", "bold", "plain")) +
+    #Only the title in bold
+    #Delete background
+    theme_void() +
+    #Zoom in
+    coord_cartesian(xlim = c(0, 4))
+
+
+  #Put the 2 plots together :
+
+  library(patchwork)
+
+  layout <- c(
+    area(t = 0, l = 0, b = 30, r = 3),
+    # middle plot starts a little lower (t=1) because there's no title.
+    # starts 1 unit right of the left plot (l=4, whereas left plot is r=3),
+    # goes to the bottom of the page (30 units),
+    # and 6 units further over from the left plot (r=9 whereas left plot is r=3)
+    #right most plot starts at top of page,
+    #begins where middle plot ends (l=9, and middle plot is r=9),
+    #goes to bottom of page (b=30), and extends two units wide (r=11)
+    area(t = 2, l = 4, b = 30.5, r = 9)
+
+  )
+
+  #Final plot arrangement
+  forestplot <- p_mid + p_right + plot_layout(design = layout)
+
+  return(forestplot)
+}
