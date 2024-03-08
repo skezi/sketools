@@ -1,1 +1,3 @@
 # sketools
+
+**Une boîte à outils polyvalente a été initialement développée pour les utilisateurs de SKEZIA dans le but de gérer les données issues de nos questionnaires. Les fonctionnalités de cette boîte à outils sont principalement axées sur la visualisation des données, englobant une large gamme de graphiques utiles pour appréhender les données et prendre des décisions par la suite. Parmi les types de graphiques disponibles, on trouve des barplots, des histogrammes, des diagrammes de Venn, des diagrammes en camembert, des pyramides, des nuages de points, ainsi que des fonctionnalités dédiées à la structuration des données et au recodage des variables. De plus, la boîte à outils permet de générer des effectifs pour les variables et leurs modalités.**

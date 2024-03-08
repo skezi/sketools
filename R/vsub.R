@@ -1,5 +1,3 @@
-library(stringi)
-
 vsub <- function(df, vars, before, after) {
   
   for (i in colnames(df[, vars])){

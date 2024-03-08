@@ -1,37 +1,36 @@
-\name{description_wordcloud}
-\alias{description_wordcloud}
-%- Also NEED an '\alias' for EACH other topic documented here.
+\name{wordcloud_maker}
+\alias{wordcloud_maker}
 \title{
-How to make a word cloud with SKEZI
+  Wordcloud Maker Function
 }
-
+\description{
+  A function to generate a wordcloud from a text variable in a dataframe. It preprocesses the text, creates a term-document matrix, and generates a wordcloud using the specified parameters.
+}
 \usage{
-wordcloud_maker(data, docs,...., tm_map)
+  wordcloud_maker(df, var)
 }
-
 \arguments{
-  \item{data}{A data.frame, or other object, will override the plot data. All objects will be fortified to produce a data frame. See fortify() for which variables will be created.}
-  \item{toSpace}{Remove special characters by replacing with a wite space, by default set to @, /, ~.}
-  \item{removePunctuation}{Remove any punctuation.}
-  \item{removeWords}{Remove stopwords from word list, by default "french".}
-  \item{removeNumbers}{Remove numbers from list.}
-  \item{content_transformer}{Change all letters to either upper case or lower case, by default set to tolower.}
-  \item{set.seed}{Random generator, meaning that he placement of words is randomised.}
-
-
-
+  \item{df}{
+    The dataframe containing the text variable for creating the wordcloud.
+  }
+  \item{var}{
+    The name of the text variable in the dataframe.
+  }
 }
-
-
-
-
-
-
-
-
-
-
+\details{
+  The function preprocesses the text, creates a term-document matrix, and generates a wordcloud with specified parameters, saving the result as a PNG file in the "plot" directory.
+}
+\value{
+  Returns the wordcloud plot.
+}
 \author{
-Clementine LE RIDOU
+  [Your Name]
 }
-
+\note{
+  Ensure that the necessary packages (e.g., `tm`, `wordcloud`, `slam`) are installed and loaded before using this function.
+}
+\examples{
+  # Example usage:
+  df <- data.frame(text = c("This is a sample sentence.", "Another example here."))
+  wordcloud_maker(df, "text")
+}

@@ -1,15 +1,28 @@
 Package: sketools
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Data analysis of SKEZIA's DATA 
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: SKEZI
+Maintainer: Akram Hecini <akram.hecini@skezi.eu>
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports:
+  plumber,
+  dplyr,
+  tidyr,
+  gdata,
+  stringr,
+  ggplot2,
+  kableExtra,
+  stringi,
+  ggvenn,
+  pander,
+  magrittr,
+  flextable,
+  readxl,
+  mime,
+  writexl,
   gtsummary,
   ggplot2,
   magrittr,
@@ -22,11 +35,25 @@ Imports:
   tm,
   SnowballC,
   RColorBrewer,
-  ggVennDiagram,
   sentimentr,
   ComplexUpset,
   rmarkdown,
-  htmlwidgets, 
+  htmlwidgets,
+  wordcloud2,
   psych,
   hot.deck,
-  purrr,
+  officedown,
+  dplyr,
+  tidyr,
+  ggwordcloud,
+  stringr,
+  ggplot2,
+  kableExtra,
+  stringi,
+  ggvenn,
+  pander,
+  magrittr,
+  flextable,
+  officer,
+  rvg
+
