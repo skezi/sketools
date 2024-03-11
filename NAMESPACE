@@ -1,1 +1,6 @@
-exportPattern("^[[:alpha:]]+")
+import(plumber,dplyr,tidyr,gdata,stringr,ggplot2,kableExtra,stringi,ggvenn,pander,
+        magrittr,flextable,readxl,mime,writexl,gtsummary,ggplot2,magrittr,dplyr,gt,
+        vtable,tidyverse,wordcloud,wordcloud2,tm,SnowballC,RColorBrewer,sentimentr,
+        ComplexUpset,rmarkdown,htmlwidgets,wordcloud2,psych,hot.deck,officedown,dplyr,
+        tidyr,ggwordcloud,stringr,ggplot2,kableExtra,stringi,ggvenn,pander,magrittr,
+        flextable,officer,rvg)
